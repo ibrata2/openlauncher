@@ -145,6 +145,15 @@ fun Sidebar(
             onClick      = { onNavigate(NavDestination.SETTINGS) }
         )
         NavButton(
+            icon         = Icons.Default.Brush,
+            label        = "Design",
+            isActive     = currentDest == NavDestination.DESIGNER,
+            accent       = accent,
+            iconInactive = iconInactive,
+            isHorizontal = isHorizontal,
+            onClick      = { onNavigate(NavDestination.DESIGNER) }
+        )
+        NavButton(
             icon         = Icons.Default.Home,
             label        = "Home",
             isActive     = currentDest == NavDestination.HOME,
@@ -169,7 +178,7 @@ fun Sidebar(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .fillMaxHeight()
-                    .padding(horizontal = 150.dp)
+                    .padding(horizontal = 216.dp) // 4 nav buttons × 52dp + margin
                     .horizontalScroll(rememberScrollState()),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -185,11 +194,13 @@ fun Sidebar(
             ) {
                 if (!settings.bottomBarShortcutsRight) {
                     NavButton(Icons.Default.Home,     "Home",     currentDest == NavDestination.HOME,        accent, iconInactive, true) { onNavigate(NavDestination.HOME) }
+                    NavButton(Icons.Default.Brush,    "Design",   currentDest == NavDestination.DESIGNER,    accent, iconInactive, true) { onNavigate(NavDestination.DESIGNER) }
                     NavButton(Icons.Default.Settings, "Settings", currentDest == NavDestination.SETTINGS,    accent, iconInactive, true) { onNavigate(NavDestination.SETTINGS) }
                     NavButton(Icons.Default.Apps,     "Apps",     currentDest == NavDestination.APP_LIBRARY, accent, iconInactive, true) { onNavigate(NavDestination.APP_LIBRARY) }
                 } else {
                     NavButton(Icons.Default.Apps,     "Apps",     currentDest == NavDestination.APP_LIBRARY, accent, iconInactive, true) { onNavigate(NavDestination.APP_LIBRARY) }
                     NavButton(Icons.Default.Settings, "Settings", currentDest == NavDestination.SETTINGS,    accent, iconInactive, true) { onNavigate(NavDestination.SETTINGS) }
+                    NavButton(Icons.Default.Brush,    "Design",   currentDest == NavDestination.DESIGNER,    accent, iconInactive, true) { onNavigate(NavDestination.DESIGNER) }
                     NavButton(Icons.Default.Home,     "Home",     currentDest == NavDestination.HOME,        accent, iconInactive, true) { onNavigate(NavDestination.HOME) }
                 }
             }

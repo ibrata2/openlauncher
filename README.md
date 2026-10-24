@@ -75,6 +75,9 @@ Four distinct modes for head units that can't always pass the car's headlight si
 ### 🛰️ GPS with Offline Calibration
 Speed and distance calculations use a rewritten GPS math layer with improved filtering. A calibration offset option is available for devices whose GPS chips report inaccurate baselines — accessible from the trip meter settings for reliable offline use.
 
+### 🖌️ Theme Studio (visual theme editor)
+A full on-device editor for designing your own 1024×600 home screen (built for the Pioneer Y6 HZ25 panel): text, shapes, images, icons, live clock/date and app-shortcut elements; drag, resize, rotate and pinch with touch or mouse; layers, snapping, undo/redo; custom TTF/OTF fonts; saved projects, `.oltheme` import/export and pixel-exact PNG export. A design can be applied as the launcher's home screen, so it runs on the head unit without vendor theme support. Open it from the **Design** button in the sidebar or the **Theme Studio** app icon. Details (Arabic): [docs/THEME_STUDIO.md](docs/THEME_STUDIO.md).
+
 ### 🎨 Deep Personalization
 Accent color, background color, gradient, wallpaper with adjustable dim, font weight, text scale, UI scale, and app font — all tunable from the settings menu, which is organized into logical sections (Appearance, Layout, Widgets, System).
 

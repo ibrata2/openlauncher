@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Folders the theme designer may share (exported PNGs / temporary share images). -->
+<paths>
+    <cache-path name="shared" path="shared/" />
+    <external-files-path name="pictures" path="Pictures/" />
+    <files-path name="internal_pictures" path="OpenLauncher/" />
+</paths>

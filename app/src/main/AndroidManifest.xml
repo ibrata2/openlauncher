@@ -64,6 +64,34 @@
             </intent-filter>
         </activity>
 
+        <!-- Theme Studio: stand-alone entry to the design editor (handy on a tablet) -->
+        <activity
+            android:name=".designer.DesignerActivity"
+            android:exported="true"
+            android:label="@string/designer_label"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:screenOrientation="sensorLandscape"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:taskAffinity="com.openlauncher.app.designer"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Shares exported design PNGs with the gallery / other apps -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.designfiles"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/design_file_paths" />
+        </provider>
+
         <!-- Notification listener service for MediaSession / Now Playing -->
         <service
             android:name=".service.MediaListenerService"

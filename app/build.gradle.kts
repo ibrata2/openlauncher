@@ -79,4 +79,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
+
+    // Unit tests for the theme designer engine (pure Kotlin, runs on the JVM)
+    testImplementation("junit:junit:4.13.2")
 }

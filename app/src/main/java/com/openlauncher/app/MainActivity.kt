@@ -28,10 +28,28 @@ import com.openlauncher.app.ui.components.Sidebar
 import com.openlauncher.app.ui.screen.*
 import com.openlauncher.app.ui.theme.OpenLauncherTheme
 import com.openlauncher.app.viewmodel.LauncherViewModel
+import androidx.activity.compose.BackHandler
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Settings
+import com.openlauncher.app.designer.DesignerViewModel
+import com.openlauncher.app.designer.data.DesignRepository
+import com.openlauncher.app.designer.model.DesignProject
+import com.openlauncher.app.designer.model.ElementAction
+import com.openlauncher.app.designer.ui.DesignRunScreen
+import com.openlauncher.app.designer.ui.DesignerScreen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
 
     private val vm: LauncherViewModel by viewModels()
+
+    // Theme designer — created lazily the first time the Design screen opens
+    private val designerVm: DesignerViewModel by viewModels()
+    private var designerOpened = false
 
     private val locationPermissions = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -78,6 +96,16 @@ class MainActivity : ComponentActivity() {
             val pickerSlot      by vm.shortcutPickerSlot.collectAsStateWithLifecycle()
             val appPickerTarget by vm.appPickerTarget.collectAsStateWithLifecycle()
 
+            // Active designer theme (runs as the home screen when set)
+            val designRepo = remember { DesignRepository.get(applicationContext) }
+            val activeDesignId by designRepo.activeId.collectAsStateWithLifecycle()
+            val designRevision by designRepo.revision.collectAsStateWithLifecycle()
+            val activeDesign by produceState<DesignProject?>(null, activeDesignId, designRevision) {
+                val id = activeDesignId
+                value = if (id == null) null else withContext(Dispatchers.IO) { runCatching { designRepo.load(id) }.getOrNull() }
+            }
+            BackHandler(enabled = nav == NavDestination.DESIGNER) { vm.navigate(NavDestination.HOME) }
+
             val accent         = Color(settings.accentColor)
             val bg             = if (settings.useCustomBackgroundColor) {
                 Color(settings.backgroundColor)
@@ -123,6 +151,35 @@ class MainActivity : ComponentActivity() {
                             // Start location updates immediately upon completion
                             vm.startLocationUpdates()
                         }
+                    )
+                } else if (nav == NavDestination.DESIGNER) {
+                    // Full-screen theme editor
+                    designerOpened = true
+                    DesignerScreen(designerVm, onExit = { vm.navigate(NavDestination.HOME) })
+                } else if (nav == NavDestination.HOME && activeDesign != null) {
+                    // The user's own design running as the home screen
+                    val design = activeDesign!!
+                    DesignRunScreen(
+                        project  = design,
+                        assetDir = designRepo.assetDir(design.id),
+                        onAction = { el ->
+                            when (el.action) {
+                                ElementAction.LAUNCH_APP ->
+                                    if (el.packageName.isNotEmpty()) vm.launchApp(el.packageName)
+                                    else vm.navigate(NavDestination.APP_LIBRARY)
+                                ElementAction.OPEN_APP_LIBRARY  -> vm.navigate(NavDestination.APP_LIBRARY)
+                                ElementAction.OPEN_SETTINGS     -> vm.navigate(NavDestination.SETTINGS)
+                                ElementAction.OPEN_DESIGNER     -> vm.navigate(NavDestination.DESIGNER)
+                                ElementAction.OPEN_CLASSIC_HOME -> designRepo.setActive(null)
+                                ElementAction.NONE              -> Unit
+                            }
+                        },
+                        menuItems = listOf(
+                            (Icons.Default.Brush to "تعديل التصميم")          to { vm.navigate(NavDestination.DESIGNER) },
+                            (Icons.Default.Apps to "كل التطبيقات")            to { vm.navigate(NavDestination.APP_LIBRARY) },
+                            (Icons.Default.Settings to "إعدادات اللانشر")      to { vm.navigate(NavDestination.SETTINGS) },
+                            (Icons.Default.Dashboard to "الواجهة الكلاسيكية")  to { designRepo.setActive(null) }
+                        )
                     )
                 } else {
                     Box(modifier = Modifier.fillMaxSize().let { m ->
@@ -256,6 +313,9 @@ class MainActivity : ComponentActivity() {
                                         onUpdate = { block -> vm.updateSettings(block) },
                                         onReset  = { vm.resetSettings() }
                                     )
+
+                                    // Rendered full-screen above; nothing to show inside the pane
+                                    NavDestination.DESIGNER -> Box(modifier = Modifier.fillMaxSize())
                                 }
                             }
                         }
@@ -301,6 +361,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         vm.stopLocationUpdates()
+        if (designerOpened) designerVm.saveIfDirty()
     }
 
     override fun onStart() {
