@@ -17,8 +17,20 @@ android {
         versionName    = "0.0.5"
     }
 
+    // Fixed debug key (committed on purpose): every CI build is signed the same way,
+    // so a new APK installs over the old one without uninstalling (designs are kept).
+    signingConfigs {
+        getByName("debug") {
+            storeFile     = file("debug.keystore")
+            storePassword = "android"
+            keyAlias      = "androiddebugkey"
+            keyPassword   = "android"
+        }
+    }
+
     buildTypes {
         debug {
+            signingConfig = signingConfigs.getByName("debug")
             // Default signing config for normal device testing (restores app visibility)
         }
         release {
